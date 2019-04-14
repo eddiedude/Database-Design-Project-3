@@ -29,7 +29,7 @@ def print_orders(rs):
     for row in rs:
         print("{0:<20} {1:<20} {2:<20} {3:<15.2f} {4:<0}".format(row[0], row[1], row[2], row[3], row[4].strftime('%m/%d/%Y')))
     
-# select all functions
+# selecting all values from tables
 
 def get_games(conn):
     cur = conn.cursor()
@@ -60,7 +60,7 @@ def get_orders(conn):
     print_orders(rs)
     cur.close()
 
-# search functions
+# search by parameter functions
 
 def search_games_by_name(conn):
     search = input("Enter a name to search by: ")
@@ -89,7 +89,82 @@ def search_games_by_company(conn):
     print_games(rs)
     cur.close()
 
-# user functions
+# adding values to Games or Orders
+
+def add_new_game(conn):
+    print("Enter the following information for the new game.")
+    gid = input("GID: ")
+    title = input("Title: ")
+    publisher = input("Publisher: ")
+    developer = input("Developer: ")
+    genre = input("Genre: ")
+    year = input("Year: ")
+    system = input("System: ")
+    price = input("Price: ")
+
+    try: 
+        title = title.replace('\'', '\'\'') # if the title contains a single quote/apostophe
+        year = int(year)
+        price = float(price)
+        cur = conn.cursor()
+        cur.execute('INSERT INTO public."Games" VALUES (\'%s\', \'%s\', \'%s\', \'%s\', \'%s\', %d, \'%s\', %f);' % (gid, title, publisher, developer, genre, year, system, price))
+        conn.commit()
+        print("Game added!")
+        cur.close()
+    except Exception as e:
+        print("Something went wrong. Please make sure all entries are in the correct format.")
+
+def add_new_customer(conn):
+    print("Enter the following information for the new customer.")
+    name = input("Name: ")
+    address = input("Address: ")
+    city = input("City: ")
+    state = input("State (abbreviation): ")
+    zip = input("Zip code: ")
+    phone = input("Phone number: ")
+    cid = input("CID: ")
+
+    try: 
+        name = name.replace('\'', '\'\'') # if the string contains a single quote/apostophe
+        address = address.replace('\'', '\'\'')
+        city = city.replace('\'', '\'\'')
+        cur = conn.cursor()
+        cur.execute('INSERT INTO public."Customer" VALUES (\'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\');' % (name, address, city, state, zip, phone, cid))
+        conn.commit()
+        print("Customer added!")
+        cur.close()
+    except Exception as e:
+       print("Something went wrong. Please make sure all entries are in the correct format.")
+
+def add_new_order(conn):
+    print("Enter the following information for the new order.")
+    oid = input("OID: ")
+    gid = input("GID: ")
+    customer = input("CID: ")
+
+    try: 
+        cur = conn.cursor()
+        
+        # verifies game is in Games table and gets price
+        cur.execute('SELECT "Price" FROM public."Games" WHERE "GID" = \'' + gid + '\';')
+        record = cur.fetchone()
+        sale = record[0]
+        print(gid + " " + str(sale))
+
+        # verifies cid is in Customer table
+        cur.execute('SELECT "CID" FROM public."Customer" WHERE "CID" = \'' + customer + '\';')
+        record = cur.fetchone()
+        cid = record[0]
+        print(cid)
+
+        cur.execute('INSERT INTO public."Orders" VALUES (\'%s\', \'%s\', \'%s\', \'%f\', CURRENT_DATE);' % (oid, gid, cid, sale))
+        conn.commit()
+        print("Order added!")
+        cur.close()
+    except Exception as e:
+        print("Something went wrong. Please make sure all entries are in the correct format. The GID and CID entered must exist in the system under Games or Customers.")
+
+# create new user
 def create_new_user(conn):
     print("Creating a new user...")
     username = input("Enter username: ")
@@ -108,14 +183,19 @@ def create_new_user(conn):
         cur = conn.cursor()
         cur.execute("CREATE USER %s WITH PASSWORD '%s'" %(username, password)) 
         conn.commit()
-           
-def connection():
-    username = input("Enter Username: ")
-    password = pw.getpass("Password: ")
-    conn = None
-    conn = psycopg2.connect(host = "localhost", database = "postgres", user = username, password = password)
-    return conn
 
+# connection - asks for login info
+def connection():
+    try:
+        username = input("Enter Username: ")
+        password = pw.getpass("Password: ")
+        conn = None
+        conn = psycopg2.connect(host = "localhost", database = "postgres", user = username, password = password)
+        return conn
+    except:
+        print("Login information incorrect. Please restart and try again!")
+
+# display menu function
 def display_menu():
     print("1 - Display all games")
     print("2 - Display all companies")
@@ -125,49 +205,62 @@ def display_menu():
     print("6 - Search games by genre")
     print("7 - Search games by company")
     print("8 - Add a new game")
-    print("9 - Create new customer or employee account")
-    print("10 - Exit")
+    print("9 - Add a new customer")
+    print("10 - Add a new order")
+    print("11 - Create new customer or employee account")
+    print("99 - Exit")
 
-conn = connection()
-#create_new_user(conn)
+# MAIN BEGINS HERE
 
-display_menu()
-flag = True
-while flag:
-    flag2 = input("Enter a command (or enter 0 to display menu): ")
-    print("\n")
-    if flag2 == '0':
-        display_menu()
-    elif flag2 == '1':
-        print("Games:")
-        get_games(conn)
-    elif flag2 == '2':
-        print("Companies:")
-        get_companies(conn)
-    elif flag2 == '3':
-        print("Customers:")
-        get_customers(conn)
-    elif flag2 == '4':
-        print("Orders:")
-        get_orders(conn)
-    elif flag2 == '5':
-        print("Search games by name:")
-        search_games_by_name(conn)
-    elif flag2 == '6':
-        print("Search games by genre:")
-        search_games_by_genre(conn)
-    elif flag2 == '7':
-        print("Search games by company:")
-        search_games_by_company(conn)
-    elif flag2 == '8':
-        print("Add new game:")
-        #add_new_game()
-    elif flag2 == '9':
-        print("Create new account:")
-        #create_new_user()
-    elif flag2 == '10':
-        print("Exiting Database")
-        flag = False
-    else:
-        print("Invalid command.")
-conn.close()
+conn = connection() # establish connection and ask for login info
+
+if conn is None:
+    print() # do nothing, connection wasn't estabished
+else:
+    display_menu()
+    flag = True
+    while flag:
+        flag2 = input("\nEnter a command (or enter 0 to display menu): ")
+        print("\n")
+        if flag2 == '0':
+            display_menu()
+        elif flag2 == '1':
+            print("Games:")
+            get_games(conn)
+        elif flag2 == '2':
+            print("Companies:")
+            get_companies(conn)
+        elif flag2 == '3':
+            print("Customers:")
+            get_customers(conn)
+        elif flag2 == '4':
+            print("Orders:")
+            get_orders(conn)
+        elif flag2 == '5':
+            print("Search games by name:")
+            search_games_by_name(conn)
+        elif flag2 == '6':
+            print("Search games by genre:")
+            search_games_by_genre(conn)
+        elif flag2 == '7':
+            print("Search games by company:")
+            search_games_by_company(conn)
+        elif flag2 == '8':
+            print("Add a new game:")
+            add_new_game(conn)
+        elif flag2 == '9':
+            print("Add a new customer:")
+            add_new_customer(conn)
+        elif flag2 == '10':
+            print("Add a new order:")
+            add_new_order(conn)
+        elif flag2 == '11':
+            print("Create a new account:")
+            #create_new_user(conn)
+        elif flag2 == '99':
+            print("Exiting database.")
+            flag = False
+        else:
+            print("Invalid command.")
+    conn.close()
+print("Goodbye!")
