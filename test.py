@@ -3,7 +3,7 @@ import psycopg2.extensions
 import getpass as pw
 import datetime
 
-# print functions
+# print function
 
 def print_companies(rs):
     print("{0:<20} {1:<20} {2:<15} {3:<20} {4:<0}".format("Name", "Founder", "Year Founded", "CEO", "Headquarters"))
@@ -32,157 +32,273 @@ def print_orders(rs):
 # selecting all values from tables
 
 def get_games(conn):
-    cur = conn.cursor()
-    cur.execute('SELECT * FROM public."Games";')
-    rs = cur.fetchall()
-    print_games(rs)
-    cur.close()
+    try:
+        cur = conn.cursor()
+        cur.execute('SELECT * FROM public."Games";')
+        rs = cur.fetchall()
+        print_games(rs)
+        cur.close()
+    except Exception as e:
+        print("Something went wrong. Error: " + str(e))
+        cur = conn.cursor()
+        cur.execute('ROLLBACK;')
+        cur.close()
 
 def get_companies(conn):
-    cur = conn.cursor()
-    cur.execute('SELECT * FROM public."Company";')
-    rs = cur.fetchall()
-    print_companies(rs)
-    cur.close()
+    try:
+        cur = conn.cursor()
+        cur.execute('SELECT * FROM public."Company";')
+        rs = cur.fetchall()
+        print_companies(rs)
+        cur.close()
+    except Exception as e:
+        print("Something went wrong. Error: " + str(e))
+        cur = conn.cursor()
+        cur.execute('ROLLBACK;')
+        cur.close()
 
 def get_customers(conn):
-    cur = conn.cursor()
-    cur.execute('SELECT * FROM public."Customer";')
-    rs = cur.fetchall()
-    print_customers(rs)
-    cur.close()
+    try:
+        cur = conn.cursor()
+        cur.execute('SELECT * FROM public."Customer";')
+        rs = cur.fetchall()
+        print_customers(rs)
+        cur.close()
+    except Exception as e:
+        print("Something went wrong. Error: " + str(e))
+        cur = conn.cursor()
+        cur.execute('ROLLBACK;')
+        cur.close()
 
 def get_orders(conn):
-
-    cur = conn.cursor()
-    cur.execute('SELECT * FROM public."Orders";')
-    rs = cur.fetchall()
-    print_orders(rs)
-    cur.close()
+    try:
+        cur = conn.cursor()
+        cur.execute('SELECT * FROM public."Orders";')
+        rs = cur.fetchall()
+        print_orders(rs)
+        cur.close()
+    except Exception as e:
+        print("Something went wrong. Error: " + str(e))
+        cur = conn.cursor()
+        cur.execute('ROLLBACK;')
+        cur.close()
 
 # search by parameter functions
 
 def search_games_by_name(conn):
-    search = input("Enter a name to search by: ")
-    search = search.lower().strip()
-    cur = conn.cursor()
-    cur.execute('SELECT * FROM public."Games" WHERE LOWER("Title") LIKE \'%' + search + '%\';')
-    rs = cur.fetchall()
-    print_games(rs)
-    cur.close()
+    try:
+        search = input("Enter a name to search by: ")
+        search = search.lower().strip()
+        cur = conn.cursor()
+        cur.execute('SELECT * FROM public."Games" WHERE LOWER("Title") LIKE \'%' + search + '%\';')
+        rs = cur.fetchall()
+        print_games(rs)
+        cur.close()
+    except Exception as e:
+        print("Something went wrong. Error: " + str(e))
+        cur = conn.cursor()
+        cur.execute('ROLLBACK;')
+        cur.close()
 
 def search_games_by_genre(conn):
-    search = input("Enter a genre to search by: ")
-    search = search.lower().strip()
-    cur = conn.cursor()
-    cur.execute('SELECT * FROM public."Games" WHERE LOWER("Genre") LIKE \'%' + search + '%\';')
-    rs = cur.fetchall()
-    print_games(rs)
-    cur.close()
+    try:
+        search = input("Enter a genre to search by: ")
+        search = search.lower().strip()
+        cur = conn.cursor()
+        cur.execute('SELECT * FROM public."Games" WHERE LOWER("Genre") LIKE \'%' + search + '%\';')
+        rs = cur.fetchall()
+        print_games(rs)
+        cur.close()
+    except Exception as e:
+        print("Something went wrong. Error: " + str(e))
+        cur = conn.cursor()
+        cur.execute('ROLLBACK;')
+        cur.close()
 
 def search_games_by_company(conn):
-    search = input("Enter a company (publisher) to search by: ")
-    search = search.lower().strip()
-    cur = conn.cursor()
-    cur.execute('SELECT * FROM public."Games" WHERE LOWER("Publisher") LIKE \'%' + search + '%\';')
-    rs = cur.fetchall()
-    print_games(rs)
-    cur.close()
+    try:
+        search = input("Enter a company (publisher) to search by: ")
+        search = search.lower().strip()
+        cur = conn.cursor()
+        cur.execute('SELECT * FROM public."Games" WHERE LOWER("Publisher") LIKE \'%' + search + '%\';')
+        rs = cur.fetchall()
+        print_games(rs)
+        cur.close()
+    except Exception as e:
+        print("Something went wrong. Error: " + str(e))
+        cur = conn.cursor()
+        cur.execute('ROLLBACK;')
+        cur.close()
 
 # adding values to Games or Orders
 
 def add_new_game(conn):
-    print("Enter the following information for the new game.")
-    gid = input("GID: ")
-    title = input("Title: ")
-    publisher = input("Publisher: ")
-    developer = input("Developer: ")
-    genre = input("Genre: ")
-    year = input("Year: ")
-    system = input("System: ")
-    price = input("Price: ")
-
     try: 
+        # verify that user has INSERT permission
+        cur = conn.cursor()
+        cur.execute('INSERT INTO public."Games" ("GID") VALUES (\'\');')
+        cur.execute('DELETE FROM public."Games" WHERE "GID" = \'\';')
+        cur.close()
+
+        print("Enter the following information for the new game.")
+        gid = input("GID: ")
+        title = input("Title: ")
+        publisher = input("Publisher: ")
+        developer = input("Developer: ")
+        genre = input("Genre: ")
+        year = input("Year: ")
+        system = input("System: ")
+        price = input("Price: ")
+
         title = title.replace('\'', '\'\'') # if the title contains a single quote/apostophe
         year = int(year)
         price = float(price)
+
         cur = conn.cursor()
         cur.execute('INSERT INTO public."Games" VALUES (\'%s\', \'%s\', \'%s\', \'%s\', \'%s\', %d, \'%s\', %f);' % (gid, title, publisher, developer, genre, year, system, price))
         conn.commit()
         print("Game added!")
         cur.close()
     except Exception as e:
-        print("Something went wrong. Please make sure all entries are in the correct format.")
+        print("Something went wrong. Please make sure all entries are formatted correctly. Error: " + str(e))
+        cur = conn.cursor()
+        cur.execute('ROLLBACK;')
+        cur.close()
+
+def add_new_company(conn):
+    try: 
+        # verify that user has INSERT permission
+        cur = conn.cursor()
+        cur.execute('INSERT INTO public."Company" ("Name") VALUES (\'\');')
+        cur.execute('DELETE FROM public."Company" WHERE "Name" = \'\';')
+        cur.close()
+
+        print("Enter the following information for the new company.")
+        name = input("Name: ")
+        founder = input("Founder: ")
+        year = input("Year Founded: ")
+        ceo = input("CEO: ")
+        hq = input("Headquarters: ")
+
+        name = name.replace('\'', '\'\'') # if the name contains a single quote/apostophe
+        founder = founder.replace('\'', '\'\'')
+        ceo = ceo.replace('\'', '\'\'')
+        hq = hq.replace('\'', '\'\'')
+        year = int(year)
+
+        cur = conn.cursor()
+        cur.execute('INSERT INTO public."Company" VALUES (\'%s\', \'%s\', %d, \'%s\', \'%s\');' % (name, founder, year, ceo, hq))
+        conn.commit()
+        print("Company added!")
+        cur.close()
+    except Exception as e:
+        print("Something went wrong. Please make sure all entries are formatted correctly. Error: " + str(e))
+        cur = conn.cursor()
+        cur.execute('ROLLBACK;')
+        cur.close()
 
 def add_new_customer(conn):
-    print("Enter the following information for the new customer.")
-    name = input("Name: ")
-    address = input("Address: ")
-    city = input("City: ")
-    state = input("State (abbreviation): ")
-    zip = input("Zip code: ")
-    phone = input("Phone number: ")
-    cid = input("CID: ")
-
     try: 
+        # verify that user has INSERT permission
+        cur = conn.cursor()
+        cur.execute('INSERT INTO public."Customer" ("CID") VALUES (\'\')')
+        cur.execute('DELETE FROM public."Customer" WHERE "CID" = \'\';')
+        cur.close()
+
+        print("Enter the following information for the new customer.")
+        name = input("Name: ")
+        address = input("Address: ")
+        city = input("City: ")
+        state = input("State (abbreviation): ")
+        zip = input("Zip code: ")
+        phone = input("Phone number: ")
+        cid = input("CID: ")
+
         name = name.replace('\'', '\'\'') # if the string contains a single quote/apostophe
         address = address.replace('\'', '\'\'')
         city = city.replace('\'', '\'\'')
+
         cur = conn.cursor()
         cur.execute('INSERT INTO public."Customer" VALUES (\'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\');' % (name, address, city, state, zip, phone, cid))
         conn.commit()
         print("Customer added!")
         cur.close()
     except Exception as e:
-       print("Something went wrong. Please make sure all entries are in the correct format.")
+        print("Something went wrong. Please make sure all entries are formatted correctly. Error: " + str(e))
+        cur = conn.cursor()
+        cur.execute('ROLLBACK;')
+        cur.close()
 
 def add_new_order(conn):
-    print("Enter the following information for the new order.")
-    oid = input("OID: ")
-    gid = input("GID: ")
-    customer = input("CID: ")
-
     try: 
+        # verify that user has INSERT permission
         cur = conn.cursor()
-        
+        cur.execute('INSERT INTO public."Orders" ("OID", "GID", "CID") VALUES (\'\', \'\', \'\')')
+        cur.execute('DELETE FROM public."Orders" WHERE "OID" = \'\';')
+        cur.close()
+
+        print("Enter the following information for the new order.")
+        oid = input("OID: ")
+        gid = input("GID: ")
+        customer = input("CID: ")
+
+        cur = conn.cursor()
         # verifies game is in Games table and gets price
         cur.execute('SELECT "Price" FROM public."Games" WHERE "GID" = \'' + gid + '\';')
         record = cur.fetchone()
         sale = record[0]
-        print(gid + " " + str(sale))
 
         # verifies cid is in Customer table
         cur.execute('SELECT "CID" FROM public."Customer" WHERE "CID" = \'' + customer + '\';')
         record = cur.fetchone()
         cid = record[0]
-        print(cid)
 
         cur.execute('INSERT INTO public."Orders" VALUES (\'%s\', \'%s\', \'%s\', \'%f\', CURRENT_DATE);' % (oid, gid, cid, sale))
         conn.commit()
         print("Order added!")
         cur.close()
     except Exception as e:
-        print("Something went wrong. Please make sure all entries are in the correct format. The GID and CID entered must exist in the system under Games or Customers.")
+        print("Something went wrong. Please make sure all entries are formatted correctly. GID and CID must already exist in the system (in Games or Customers, respectively) in order to be added to Orders. Error: " + str(e))
+        cur = conn.cursor()
+        cur.execute('ROLLBACK;')
+        cur.close()
 
 # create new user
 def create_new_user(conn):
-    print("Creating a new user...")
-    username = input("Enter username: ")
-    password = input("Enter password: ")
-    confirmpass = input("Confirm password: ")
-    key = input("Enter key (ignore if customer): ")
-    if password != confirmpass:
-        print("password does not match")
-    elif password == confirmpass and key != '1234':
-        print("create customer account")
+    try: 
+        username = input("Enter new username: ")
+        password = pw.getpass("Enter new password: ")
+        confirmpass = pw.getpass("Confirm new password: ")
+        key = pw.getpass("Enter employee key (ignore if customer): ")
+        if password != confirmpass:
+            print("Passwords do not match. Please try again.")
+        elif password == confirmpass and key != '1234':
+            print("Creating customer account.")
+            cur = conn.cursor()
+            cur.execute("CREATE USER %s WITH PASSWORD '%s';" %(username, password))
+            # grant permissions to customer account
+            cur.execute("GRANT SELECT ON TABLE public.\"Games\" TO %s; GRANT SELECT ON TABLE public.\"Company\" TO %s;" %(username, username))
+            conn.commit()
+        elif password == confirmpass and key == '1234':
+            print("Creating employee account.")
+            cur = conn.cursor()
+            cur.execute("CREATE USER %s WITH PASSWORD '%s';" %(username, password)) 
+            # grant permissions to employee account
+            cur.execute("ALTER USER %s CREATEROLE; GRANT INSERT, SELECT, UPDATE, DELETE ON TABLE public.\"Company\" TO %s WITH GRANT OPTION; GRANT INSERT, SELECT, UPDATE, DELETE ON TABLE public.\"Customer\" TO %s WITH GRANT OPTION; GRANT INSERT, SELECT, UPDATE, DELETE ON TABLE public.\"Games\" TO %s WITH GRANT OPTION; GRANT INSERT, SELECT, UPDATE, DELETE ON TABLE public.\"Orders\" TO %s WITH GRANT OPTION;" %(username, username, username, username, username))
+            conn.commit()
+    except Exception as e:
+        print("Something went wrong. Error: " + str(e))
         cur = conn.cursor()
-        cur.execute("CREATE USER %s WITH PASSWORD '%s'" %(username, password)) 
-        conn.commit()
-    elif password == confirmpass and key == '1234':
-        print("created employee account")
-        cur = conn.cursor()
-        cur.execute("CREATE USER %s WITH PASSWORD '%s'" %(username, password)) 
-        conn.commit()
+        cur.execute('ROLLBACK;')
+        cur.close()
+
+'''
+to drop a user after granting them privileges:
+REVOKE ALL PRIVILEGES ON ALL TABLES IN SCHEMA public FROM hello;
+REVOKE ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public FROM hello;
+REVOKE ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA public FROM hello;
+DROP USER hello;
+'''
 
 # connection - asks for login info
 def connection():
@@ -192,7 +308,7 @@ def connection():
         conn = None
         conn = psycopg2.connect(host = "localhost", database = "postgres", user = username, password = password)
         return conn
-    except:
+    except Exception as e:
         print("Login information incorrect. Please restart and try again!")
 
 # display menu function
@@ -205,9 +321,10 @@ def display_menu():
     print("6 - Search games by genre")
     print("7 - Search games by company")
     print("8 - Add a new game")
-    print("9 - Add a new customer")
-    print("10 - Add a new order")
-    print("11 - Create new customer or employee account")
+    print("9 - Add a new company")
+    print("10 - Add a new customer")
+    print("11 - Add a new order")
+    print("12 - Create new customer or employee account")
     print("99 - Exit")
 
 # MAIN BEGINS HERE
@@ -249,14 +366,17 @@ else:
             print("Add a new game:")
             add_new_game(conn)
         elif flag2 == '9':
+            print("Add a new company:")
+            add_new_company(conn)
+        elif flag2 == '10':
             print("Add a new customer:")
             add_new_customer(conn)
-        elif flag2 == '10':
+        elif flag2 == '11':
             print("Add a new order:")
             add_new_order(conn)
-        elif flag2 == '11':
-            print("Create a new account:")
-            #create_new_user(conn)
+        elif flag2 == '12':
+            print("Create a new user account:")
+            create_new_user(conn)
         elif flag2 == '99':
             print("Exiting database.")
             flag = False
