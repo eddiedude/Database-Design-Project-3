@@ -136,8 +136,8 @@ def add_new_game(conn):
     try: 
         # verify that user has INSERT permission
         cur = conn.cursor()
-        cur.execute('INSERT INTO public."Games" ("GID") VALUES (\'\');')
-        cur.execute('DELETE FROM public."Games" WHERE "GID" = \'\';')
+        cur.execute('INSERT INTO public."Games" ("GID") VALUES (\' \');')
+        cur.execute('DELETE FROM public."Games" WHERE "GID" = \' \';')
         cur.close()
 
         print("Enter the following information for the new game.")
@@ -150,6 +150,7 @@ def add_new_game(conn):
         system = input("System: ")
         price = input("Price: ")
 
+        gid = gid.strip();
         title = title.replace('\'', '\'\'') # if the title contains a single quote/apostophe
         year = int(year)
         price = float(price)
@@ -169,8 +170,8 @@ def add_new_company(conn):
     try: 
         # verify that user has INSERT permission
         cur = conn.cursor()
-        cur.execute('INSERT INTO public."Company" ("Name") VALUES (\'\');')
-        cur.execute('DELETE FROM public."Company" WHERE "Name" = \'\';')
+        cur.execute('INSERT INTO public."Company" ("Name") VALUES (\' \');')
+        cur.execute('DELETE FROM public."Company" WHERE "Name" = \' \';')
         cur.close()
 
         print("Enter the following information for the new company.")
@@ -201,8 +202,8 @@ def add_new_customer(conn):
     try: 
         # verify that user has INSERT permission
         cur = conn.cursor()
-        cur.execute('INSERT INTO public."Customer" ("CID") VALUES (\'\')')
-        cur.execute('DELETE FROM public."Customer" WHERE "CID" = \'\';')
+        cur.execute('INSERT INTO public."Customer" ("CID") VALUES (\' \')')
+        cur.execute('DELETE FROM public."Customer" WHERE "CID" = \' \';')
         cur.close()
 
         print("Enter the following information for the new customer.")
@@ -233,7 +234,7 @@ def add_new_order(conn):
     try: 
         # verify that user has INSERT permission
         cur = conn.cursor()
-        cur.execute('INSERT INTO public."Orders" ("OID", "GID", "CID") VALUES (\'\', \'\', \'\')')
+        cur.execute('INSERT INTO public."Orders" ("OID", "GID", "CID") VALUES (\' \', \' \', \' \')')
         cur.execute('DELETE FROM public."Orders" WHERE "OID" = \'\';')
         cur.close()
 
@@ -337,7 +338,7 @@ else:
     display_menu()
     flag = True
     while flag:
-        flag2 = input("\nEnter a command (or enter 0 to display menu): ")
+        flag2 = input("\nEnter a command, or enter 0 to display menu: ")
         print("\n")
         if flag2 == '0':
             display_menu()
