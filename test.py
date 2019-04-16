@@ -235,7 +235,7 @@ def add_new_order(conn):
         # verify that user has INSERT permission
         cur = conn.cursor()
         cur.execute('INSERT INTO public."Orders" ("OID", "GID", "CID") VALUES (\' \', \' \', \' \')')
-        cur.execute('DELETE FROM public."Orders" WHERE "OID" = \'\';')
+        cur.execute('DELETE FROM public."Orders" WHERE "OID" = \' \';')
         cur.close()
 
         print("Enter the following information for the new order.")
