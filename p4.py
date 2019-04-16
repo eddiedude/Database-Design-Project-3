@@ -83,6 +83,32 @@ def get_orders(conn):
         cur.execute('ROLLBACK;')
         cur.close()
 
+def get_sorted_orders_by_customer_id:
+    try:
+        cur = conn.cursor()
+        cur.execute('SELECT * FROM public."Orders" ORDER BY "CID" ASC')
+        rs = cur.fetchall()
+        print_orders(rs)
+        cur.close()
+    except Exception as e:
+        print("Something went wrong. Error: " + str(e))
+        cur = conn.cursor()
+        cur.execute('ROLLBACK;')
+        cur.close()
+
+def get_sorted_orders_by_game_id:
+    try:
+        cur = conn.cursor()
+        cur.execute('SELECT * FROM public."Orders" ORDER BY "GID" ASC')
+        rs = cur.fetchall()
+        print_orders(rs)
+        cur.close()
+    except Exception as e:
+        print("Something went wrong. Error: " + str(e))
+        cur = conn.cursor()
+        cur.execute('ROLLBACK;')
+        cur.close()
+
 # search by parameter functions
 
 def search_games_by_name(conn):
@@ -123,6 +149,36 @@ def search_games_by_company(conn):
         cur.execute('SELECT * FROM public."Games" WHERE LOWER("Publisher") LIKE \'%' + search + '%\';')
         rs = cur.fetchall()
         print_games(rs)
+        cur.close()
+    except Exception as e:
+        print("Something went wrong. Error: " + str(e))
+        cur = conn.cursor()
+        cur.execute('ROLLBACK;')
+        cur.close()
+
+def search_orders_by_customer_id:
+    try:
+        search = input("Enter a customer ID to search by: ")
+        search = search.lower().strip()
+        cur = conn.cursor()
+        cur.execute('SELECT * FROM public."Orders" WHERE LOWER("CID") LIKE \'%' + search + '%\';')
+        rs = cur.fetchall()
+        print_orders(rs)
+        cur.close()
+    except Exception as e:
+        print("Something went wrong. Error: " + str(e))
+        cur = conn.cursor()
+        cur.execute('ROLLBACK;')
+        cur.close()
+
+def search_orders_by_game_id:
+    try:
+        search = input("Enter a game ID to search by: ")
+        search = search.lower().strip()
+        cur = conn.cursor()
+        cur.execute('SELECT * FROM public."Orders" WHERE LOWER("GID") LIKE \'%' + search + '%\';')
+        rs = cur.fetchall()
+        print_orders(rs)
         cur.close()
     except Exception as e:
         print("Something went wrong. Error: " + str(e))
@@ -317,14 +373,18 @@ def display_menu():
     print("2 - Display all companies")
     print("3 - Display all customers")
     print("4 - Display all orders")
-    print("5 - Search games by name")
-    print("6 - Search games by genre")
-    print("7 - Search games by company")
-    print("8 - Add a new game")
-    print("9 - Add a new company")
-    print("10 - Add a new customer")
-    print("11 - Add a new order")
-    print("12 - Create new customer or employee account")
+    print("5 - Display all orders sorted by ascending customer id")
+    print("6 - Display all orders sorted by ascending game id")
+    print("7 - Search games by name")
+    print("8 - Search games by genre")
+    print("9 - Search games by company")
+    print("10 - Search orders by customer id")
+    print("11 - Search orders by game id")
+    print("12 - Add a new game")
+    print("13 - Add a new company")
+    print("14 - Add a new customer")
+    print("15 - Add a new order")
+    print("16 - Create new customer or employee account")
     print("99 - Exit")
 
 # MAIN BEGINS HERE
@@ -354,27 +414,39 @@ else:
             print("Orders:")
             get_orders(conn)
         elif flag2 == '5':
+            print("Orders by ascending customer ID:")
+            get_sorted_orders_by_customer_id(conn)
+        elif flag2 == '6':
+            print("Orders by ascending game ID:")
+            get_sorted_orders_by_game_id(conn)
+        elif flag2 == '7':
             print("Search games by name:")
             search_games_by_name(conn)
-        elif flag2 == '6':
+        elif flag2 == '8':
             print("Search games by genre:")
             search_games_by_genre(conn)
-        elif flag2 == '7':
+        elif flag2 == '9':
             print("Search games by company:")
             search_games_by_company(conn)
-        elif flag2 == '8':
+        elif flag2 == '10':
+            print("Search orders by customer ID:")
+            search_orders_by_customer_id(conn)
+        elif flag2 == '11':
+            print("Search orders by game ID:")
+            search_orders_by_game_id(conn)
+        elif flag2 == '12':
             print("Add a new game:")
             add_new_game(conn)
-        elif flag2 == '9':
+        elif flag2 == '13':
             print("Add a new company:")
             add_new_company(conn)
-        elif flag2 == '10':
+        elif flag2 == '14':
             print("Add a new customer:")
             add_new_customer(conn)
-        elif flag2 == '11':
+        elif flag2 == '15':
             print("Add a new order:")
             add_new_order(conn)
-        elif flag2 == '12':
+        elif flag2 == '16':
             print("Create a new user account:")
             create_new_user(conn)
         elif flag2 == '99':
