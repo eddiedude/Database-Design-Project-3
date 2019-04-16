@@ -83,7 +83,7 @@ def get_orders(conn):
         cur.execute('ROLLBACK;')
         cur.close()
 
-def get_sorted_orders_by_customer_id:
+def get_sorted_orders_by_customer_id(conn):
     try:
         cur = conn.cursor()
         cur.execute('SELECT * FROM public."Orders" ORDER BY "CID" ASC')
@@ -96,7 +96,7 @@ def get_sorted_orders_by_customer_id:
         cur.execute('ROLLBACK;')
         cur.close()
 
-def get_sorted_orders_by_game_id:
+def get_sorted_orders_by_game_id(conn):
     try:
         cur = conn.cursor()
         cur.execute('SELECT * FROM public."Orders" ORDER BY "GID" ASC')
@@ -156,7 +156,7 @@ def search_games_by_company(conn):
         cur.execute('ROLLBACK;')
         cur.close()
 
-def search_orders_by_customer_id:
+def search_orders_by_customer_id(conn):
     try:
         search = input("Enter a customer ID to search by: ")
         search = search.lower().strip()
@@ -171,7 +171,7 @@ def search_orders_by_customer_id:
         cur.execute('ROLLBACK;')
         cur.close()
 
-def search_orders_by_game_id:
+def search_orders_by_game_id(conn):
     try:
         search = input("Enter a game ID to search by: ")
         search = search.lower().strip()
