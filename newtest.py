@@ -192,8 +192,8 @@ def add_new_game(conn):
     try: 
         # verify that user has INSERT permission
         cur = conn.cursor()
-        cur.execute('INSERT INTO public."Games" ("GID") VALUES (\'\');')
-        cur.execute('DELETE FROM public."Games" WHERE "GID" = \'\';')
+        cur.execute('INSERT INTO public."Games" ("GID") VALUES (\' \');')
+        cur.execute('DELETE FROM public."Games" WHERE "GID" = \' \';')
         cur.close()
 
         print("Enter the following information for the new game.")
@@ -206,6 +206,7 @@ def add_new_game(conn):
         system = input("System: ")
         price = input("Price: ")
 
+        gid = gid.strip()
         title = title.replace('\'', '\'\'') # if the title contains a single quote/apostophe
         year = int(year)
         price = float(price)
@@ -225,8 +226,8 @@ def add_new_company(conn):
     try: 
         # verify that user has INSERT permission
         cur = conn.cursor()
-        cur.execute('INSERT INTO public."Company" ("Name") VALUES (\'\');')
-        cur.execute('DELETE FROM public."Company" WHERE "Name" = \'\';')
+        cur.execute('INSERT INTO public."Company" ("Name") VALUES (\' \');')
+        cur.execute('DELETE FROM public."Company" WHERE "Name" = \' \';')
         cur.close()
 
         print("Enter the following information for the new company.")
@@ -236,6 +237,7 @@ def add_new_company(conn):
         ceo = input("CEO: ")
         hq = input("Headquarters: ")
 
+        name = name.strip()
         name = name.replace('\'', '\'\'') # if the name contains a single quote/apostophe
         founder = founder.replace('\'', '\'\'')
         ceo = ceo.replace('\'', '\'\'')
@@ -257,8 +259,8 @@ def add_new_customer(conn):
     try: 
         # verify that user has INSERT permission
         cur = conn.cursor()
-        cur.execute('INSERT INTO public."Customer" ("CID") VALUES (\'\')')
-        cur.execute('DELETE FROM public."Customer" WHERE "CID" = \'\';')
+        cur.execute('INSERT INTO public."Customer" ("CID") VALUES (\' \')')
+        cur.execute('DELETE FROM public."Customer" WHERE "CID" = \' \';')
         cur.close()
 
         print("Enter the following information for the new customer.")
@@ -270,6 +272,7 @@ def add_new_customer(conn):
         phone = input("Phone number: ")
         cid = input("CID: ")
 
+        cid = cid.strip()
         name = name.replace('\'', '\'\'') # if the string contains a single quote/apostophe
         address = address.replace('\'', '\'\'')
         city = city.replace('\'', '\'\'')
@@ -289,8 +292,8 @@ def add_new_order(conn):
     try: 
         # verify that user has INSERT permission
         cur = conn.cursor()
-        cur.execute('INSERT INTO public."Orders" ("OID", "GID", "CID") VALUES (\'\', \'\', \'\')')
-        cur.execute('DELETE FROM public."Orders" WHERE "OID" = \'\';')
+        cur.execute('INSERT INTO public."Orders" ("OID", "GID", "CID") VALUES (\' \', \' \', \' \')')
+        cur.execute('DELETE FROM public."Orders" WHERE "OID" = \' \';')
         cur.close()
 
         print("Enter the following information for the new order.")
@@ -298,6 +301,7 @@ def add_new_order(conn):
         gid = input("GID: ")
         customer = input("CID: ")
 
+        oid = oid.strip()
         cur = conn.cursor()
         # verifies game is in Games table and gets price
         cur.execute('SELECT "Price" FROM public."Games" WHERE "GID" = \'' + gid + '\';')
@@ -315,6 +319,102 @@ def add_new_order(conn):
         cur.close()
     except Exception as e:
         print("Something went wrong. Please make sure all entries are formatted correctly. GID and CID must already exist in the system (in Games or Customers, respectively) in order to be added to Orders. Error: " + str(e))
+        cur = conn.cursor()
+        cur.execute('ROLLBACK;')
+        cur.close()
+
+# deleting from tables
+def delete_game(conn):
+    try: 
+        # verify that user has permission
+        cur = conn.cursor()
+        cur.execute('INSERT INTO public."Games" ("GID") VALUES (\' \')')
+        cur.execute('DELETE FROM public."Games" WHERE "GID" = \' \';')
+        cur.close()
+
+        gid = input("Enter the GID of the game you wish to delete EXACTLY (case sensitive): ")
+
+        gid = gid.strip()
+
+        cur = conn.cursor()
+        cur.execute('DELETE FROM public."Games" WHERE "GID" = \'%s\';' % (gid))
+        conn.commit()
+        print("Game deleted!")
+        cur.close()
+    except Exception as e:
+        print("Something went wrong. Please make sure all entries are formatted correctly. Error: " + str(e))
+        cur = conn.cursor()
+        cur.execute('ROLLBACK;')
+        cur.close()
+
+def delete_company(conn):
+    try: 
+        # verify that user has permission
+        cur = conn.cursor()
+        cur.execute('INSERT INTO public."Company" ("Name") VALUES (\' \')')
+        cur.execute('DELETE FROM public."Company" WHERE "Name" = \' \';')
+        cur.close()
+
+        name = input("Enter the name of the company you wish to delete EXACTLY (case sensitive): ")
+
+        name = name.strip()
+
+        cur = conn.cursor()
+        cur.execute('DELETE FROM public."Company" WHERE "Name" = \'%s\';' % (name))
+        conn.commit()
+        print("Company deleted!")
+        cur.close()
+    except Exception as e:
+        print("Something went wrong. Please make sure all entries are formatted correctly. Error: " + str(e))
+        cur = conn.cursor()
+        cur.execute('ROLLBACK;')
+        cur.close()
+
+def delete_customer(conn):
+    try: 
+        # verify that user has permission
+        cur = conn.cursor()
+        cur.execute('INSERT INTO public."Customer" ("CID") VALUES (\' \')')
+        cur.execute('DELETE FROM public."Customer" WHERE "CID" = \' \';')
+        cur.close()
+
+        cid = input("Enter the CID of the customer you wish to delete EXACTLY (case sensitive): ")
+
+        cid = cid.strip()
+
+        cur = conn.cursor()
+        cur.execute('DELETE FROM public."Customer" WHERE "CID" = \'%s\';' % (cid))
+        conn.commit()
+        print("Customer deleted!")
+        cur.close()
+    except Exception as e:
+        print("Something went wrong. Please make sure all entries are formatted correctly. Error: " + str(e))
+        cur = conn.cursor()
+        cur.execute('ROLLBACK;')
+        cur.close()
+
+# update game (price only)
+def update_game(conn):
+    try: 
+        # verify that user has permission
+        cur = conn.cursor()
+        cur.execute('INSERT INTO public."Games" ("GID") VALUES (\' \')')
+        cur.execute('DELETE FROM public."Games" WHERE "GID" = \' \';')
+        cur.close()
+
+        gid = input("Enter the GID of the game whose price you are changing EXACTLY (case sensitive): ")
+        price = input("Enter the updated price: ")
+    
+        gid = gid.strip()
+        price = float(price)
+
+        cur = conn.cursor()
+        cur.execute('UPDATE public."Games" SET "Price" = %f WHERE "GID" = \'%s\';' % (price, gid))
+        conn.commit()
+        print("Game updated!")
+        cur.close()
+    except Exception as e:
+        print("Something went wrong. Please make sure all entries are formatted correctly. Error: " + str(e))
         cur = conn.cursor()
         cur.execute('ROLLBACK;')
         cur.close()
@@ -348,12 +448,29 @@ def create_new_user(conn):
         cur.execute('ROLLBACK;')
         cur.close()
 
+# delete existing user
+def delete_user(conn):
+    try: 
+        print("Note: this action cannot be undone!")
+        username = input("Enter the username of the user you wish to delete EXACTLY (case sensitive): ")
+
+        cur = conn.cursor()
+        # delete permissions to account and drop
+        cur.execute("REVOKE ALL PRIVILEGES ON ALL TABLES IN SCHEMA public FROM %s; REVOKE ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public FROM %s; REVOKE ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA public FROM %s; DROP USER %s;" %(username, username, username, username))
+        print("User deleted!")
+        conn.commit()
+    except Exception as e:
+        print("Something went wrong. Error: " + str(e))
+        cur = conn.cursor()
+        cur.execute('ROLLBACK;')
+        cur.close()
+
 '''
 to drop a user after granting them privileges:
-REVOKE ALL PRIVILEGES ON ALL TABLES IN SCHEMA public FROM hello;
-REVOKE ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public FROM hello;
-REVOKE ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA public FROM hello;
-DROP USER hello;
+REVOKE ALL PRIVILEGES ON ALL TABLES IN SCHEMA public FROM customer;
+REVOKE ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public FROM customer;
+REVOKE ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA public FROM customer;
+DROP USER customer;
 '''
 
 # connection - asks for login info
@@ -369,9 +486,10 @@ def connection():
 
 # display menu function
 def display_menu():
+    print("\nMain Menu")
     print("1 - Enter Display Menu")
     print("2 - Enter Search Menu")
-    print("3 - Enter Modify Menu")
+    print("3 - Enter Modify Menu (employees only)")
     print("4 - Exit")
 
 # MAIN BEGINS HERE
@@ -384,19 +502,19 @@ else:
     display_menu()
     flag = True
     while flag:
-        flag2 = input("\nEnter a command, or enter 0 to display menu: ")
+        flag2 = input("\nEnter a command, or enter 0 to display main menu: ")
         print("\n")
         if flag2 == '1':
             displayFlag = True
-            print("Entering Display Menu")
-            print("1 - Display all games")
-            print("2 - Display all companies")
-            print("3 - Display all customers")
-            print("4 - Display all orders")
-            print("5 - Display all orders by ascending customer ID")
-            print("6 - Display all orders by ascending game ID")
             while(displayFlag):
-                displayinput = input("Enter a command or enter 0 to go back.\n")
+                print("\nEntering Display Menu")
+                print("1 - Display all games")
+                print("2 - Display all companies")
+                print("3 - Display all customers (employees only)")
+                print("4 - Display all orders (employees only)")
+                print("5 - Display all orders by ascending customer ID (employees only)")
+                print("6 - Display all orders by ascending game ID (employees only)")
+                displayinput = input("\nEnter a command or enter 0 to go back.\n")
                 if displayinput == '1':
                     print("Displaying all games")
                     get_games(conn)
@@ -420,15 +538,15 @@ else:
                 else:
                     print("Invalid Command")
         elif flag2 == '2':
-            print("Entering Search Menu")
-            print("1 - Search games by name")
-            print("2 - Search games by genre")
-            print("3 - Search games by company")
-            print("4 - Search orders by customer ID")
-            print("5 - Search orders by game ID")
             searchFlag = True
             while(searchFlag):
-                searchinput = input("Enter a command or enter 0 to go back.\n")
+                print("\nEntering Search Menu")
+                print("1 - Search games by name")
+                print("2 - Search games by genre")
+                print("3 - Search games by company")
+                print("4 - Search orders by customer ID (employees only)")
+                print("5 - Search orders by game ID (employees only)")
+                searchinput = input("\nEnter a command or enter 0 to go back.\n")
                 if searchinput == '1':
                     print("Search games by name")
                     search_games_by_name(conn)
@@ -449,15 +567,20 @@ else:
                 else:
                     print("Invalid Command")
         elif flag2 == '3':
-            print("Entering Modify Menu")
             modifyFlag = True
-            print("1 - Add new game")
-            print("2 - Add new company")
-            print("3 - Add new customer")
-            print("4 - Add new orders")
-            print("5 - Create a new user account")
             while(modifyFlag):
-                modifyinput = input("Enter a command or enter 0 to go back.\n")
+                print("\nEntering Modify Menu (employees only)")
+                print("1 - Add new game")
+                print("2 - Add new company")
+                print("3 - Add new customer")
+                print("4 - Add new orders")
+                print("5 - Delete game")
+                print("6 - Delete company")
+                print("7 - Delete customer")
+                print("8 - Update price of game")
+                print("9 - Create a new user account")
+                print("10 - Delete a user account")
+                modifyinput = input("\nEnter a command or enter 0 to go back.\n")
                 if modifyinput == '1':
                     print("Adding new game")
                     add_new_game(conn)
@@ -471,18 +594,33 @@ else:
                     print("Adding new order")
                     add_new_order(conn)
                 elif modifyinput == '5':
+                    print("Deleting game")
+                    delete_game(conn)
+                elif modifyinput == '6':
+                    print("Deleting company")
+                    delete_company(conn)
+                elif modifyinput == '7':
+                    print("Deleting customer")
+                    delete_customer(conn)
+                elif modifyinput == '8':
+                    print("Updating game")
+                    update_game(conn)
+                elif modifyinput == '9':
                     print("Creating a new user account")
                     create_new_user(conn)
+                elif modifyinput == '10':
+                    print("Deleting a user account")
+                    delete_user(conn)
                 elif modifyinput == '0':
                     modifyFlag = False
                 else:
                     print("Invalid Command")
         elif flag2 == '4':
-            print("Exiting")
+            print("Exiting database.")
             flag = False
         elif flag2 == '0':
             display_menu()
         else:
             print("Invalid command.")
 
-    print("End of program")
+    print("Goodbye!")
